@@ -1,0 +1,30 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{post.data.title} — Commonplace</title>
+    <meta name="description" content={post.data.description} />
+  </head>
+  <body>
+    <header>
+      <a href="/">← Commonplace</a>
+    </header>
+    <main>
+      <article>
+        <Content />
+      </article>
+    </main>
+  </body>
+</html>

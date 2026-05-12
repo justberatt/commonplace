@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Commonplace — Questions answered with primary sources</title>
+    <meta name="description" content="Detailed answers to questions people actually ask about programming, finance, and architecture — backed by primary sources." />
+  </head>
+  <body>
+    <header>
+      <h1>Commonplace</h1>
+      <p>Questions answered with primary sources.</p>
+    </header>
+    <main>
+      {posts.length === 0 ? (
+        <p>No posts yet.</p>
+      ) : (
+        <ul>
+          {posts.map((post) => (
+            <li>
+              <a href={`/posts/${post.slug}`}>
+                <span>{post.data.question}</span>
+                <time datetime={post.data.publishedAt.toISOString()}>
+                  {post.data.publishedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </time>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
+  </body>
+</html>
