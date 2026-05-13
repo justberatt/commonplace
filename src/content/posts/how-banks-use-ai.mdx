@@ -1,0 +1,87 @@
+---
+title: "How Banks Use AI"
+question: "How do banks use AI?"
+description: "Banks deploy AI across four core functions: credit underwriting, real-time fraud detection, algorithmic order execution, and compliance automation — each replacing a rule-based system that failed to scale."
+template: concept-explainer
+topics: ["finance", "ai"]
+publishedAt: 2026-05-13
+draft: false
+---
+
+## Short Answer
+
+Banks apply machine learning across four domains: credit underwriting, fraud detection, algorithmic trading, and regulatory compliance. In each case, an ML model learns statistical patterns from historical transaction data that a rule-based system would need to encode manually — and typically learns them faster, cheaper, and with fewer exceptions.
+
+The deployment is not uniform. Fraud detection runs at millisecond latency on every card swipe. Credit underwriting runs in batch overnight. Compliance screening runs on flagged transaction clusters. Each use case has its own tolerance for false positives and its own regulatory constraints on explainability.
+
+---
+
+## Why It Matters
+
+Global card networks process over 700 million transactions daily. AI errors in this context have concrete costs: a false positive in fraud detection freezes a legitimate purchase; a biased underwriting model denies credit to a qualified borrower; a miscalibrated AML system generates thousands of regulatory filings for transactions that carry no real risk.
+
+The stakes make banking one of the most scrutinized domains for AI deployment — and one of the most instructive. The same questions that apply everywhere (how do you handle biased training data? how do you explain a model's decision to a regulator?) have been worked through in banking before they became mainstream concerns in other industries.
+
+---
+
+## Detailed Breakdown
+
+### Credit Underwriting
+
+Traditional credit scoring is built on FICO scores: a linear model of five factors — payment history, utilization, length of history, account mix, and new inquiries. The model is transparent, stable, and systematically ignores non-linear relationships and alternative data sources.
+
+ML-based underwriting adds two things. First, it models non-linear interactions: a high utilization ratio combined with stable cash inflows is different from the same ratio with volatile inflows, and a linear model cannot distinguish them. Second, it incorporates alternative data — rental payment history, bank account cash-flow patterns, recurring subscription payments — that FICO leaves out.
+
+Bartlett et al. (2022) studied consumer lending on a major fintech platform and found that algorithmic underwriting reduced unexplained pricing gaps between minority and non-minority borrowers compared to traditional lenders, suggesting that traditional models were partly proxying for race through correlated geographic features. Fuster et al. (2022) show that ML models approve more applicants at comparable default rates, expanding credit access at the margin.
+
+The countervailing risk is distributional shift and historical bias. A model trained on decades of loan approvals learns which borrowers banks historically approved. If those approvals reflected discrimination, the model inherits it. Algorithmic fairness is a design choice, enforced through feature selection and outcome auditing — it is not a byproduct of using ML.
+
+### Fraud Detection
+
+Card fraud detection is a binary classification problem with severe class imbalance: fraud represents roughly 0.1–0.2% of transactions. A model that classifies everything as legitimate achieves 99.8% accuracy and is useless. What matters is precision and recall in the fraud class, evaluated against a threshold set by the business.
+
+Banks deploy gradient-boosted models and, increasingly, graph neural networks that score each transaction against features: velocity patterns (five transactions in three cities in an hour), device fingerprints, merchant category codes, time-since-last-transaction, and peer behavior (other customers at this merchant are not flagging). The model outputs a risk score in under 100 milliseconds — faster than the payment network settlement it is protecting.
+
+The tuning problem is false positives. A model calibrated to catch 95% of fraud will also decline approximately 5–10 legitimate transactions per fraud stopped. Banks calibrate this threshold per customer segment: a frequent traveler profile accepts fewer interruptions than a dormant account with a sudden foreign transaction.
+
+### Algorithmic Trading and Execution
+
+Investment banks and their market-making desks use ML for optimal order execution: buying or selling large positions without moving the market against themselves. The formal framework — treating execution as a stochastic control problem where the trader balances price impact against timing risk — was established by Almgren and Chriss (2001) and remains the theoretical foundation. ML extends this by letting the execution schedule adapt to real-time signals: slowing down when the order book is thin, accelerating when liquidity is deep.
+
+High-frequency trading firms apply ML differently: identifying transient pricing discrepancies between correlated instruments and closing them within microseconds. Cartea, Jaimungal, and Penalva (2015) provide the canonical academic treatment of both execution optimization and high-frequency strategies, grounding them in the market microstructure literature.
+
+For most banks, the practical AI deployment is not HFT but execution optimization, risk model calibration, and portfolio rebalancing — less visible than algorithmic trading but more economically significant at the institutional level.
+
+### Compliance and AML
+
+Anti-money laundering compliance under traditional rule-based systems produces catastrophic false-positive rates. A threshold rule — flag any cash deposit over a round number, flag any wire to a high-risk jurisdiction — catches very little actual laundering while generating millions of Suspicious Activity Reports annually. Analysts review reports, the vast majority are dismissed, and the laundering that actually occurs often uses structuring patterns below the threshold.
+
+ML-based transaction monitoring learns behavioral signatures instead of crossing fixed thresholds: structuring patterns spread across multiple accounts, unusual counterparty network topology, transaction velocity inconsistent with stated business purpose. FATF (2021) documents implementations where ML reduced false-positive rates by 20–30% compared to rule-based systems, allowing compliance teams to focus on genuinely suspicious activity.
+
+The regulatory constraint here is explainability. Under most jurisdictions, a bank submitting a Suspicious Activity Report must be able to articulate why the transaction was suspicious. A neural network's internal representation is not that articulation. Banks either use inherently interpretable models (decision trees, logistic regression on engineered features) or apply post-hoc explanation methods — and regulators continue to debate which approaches are acceptable.
+
+---
+
+## Common Misconceptions
+
+**"AI replaces loan officers."** ML underwriting models produce a score. In commercial lending, and often in retail lending at the margin, a human still makes the final call. The model narrows the decision space and surfaces the features driving the score; it does not eliminate judgment for edge cases.
+
+**"Algorithmic models are inherently fairer than human ones."** They can be, under the right design choices. But a model trained on historical approval data inherits historical approval patterns. Whether an algorithmic model reduces or entrenches discrimination depends on which features it uses, how those features correlate with protected attributes, and whether the bank actively audits outcomes by demographic group.
+
+**"AI in banking is mostly about high-frequency trading."** HFT is the most visible application but not the most widespread. Credit underwriting and fraud detection account for more AI deployment by transaction volume, more regulatory attention, and more direct effect on retail customers. HFT represents a small fraction of the industry's total ML investment.
+
+---
+
+## Sources
+
+1. Bartlett, R., Morse, A., Stanton, R., & Wallace, N. (2022). Consumer-lending discrimination in the FinTech era. *Journal of Financial Economics*, 143(3), 30–56. NBER Working Paper No. 25187. [https://www.nber.org/papers/w25187](https://www.nber.org/papers/w25187)
+
+2. Fuster, A., Goldsmith-Pinkham, P., Ramadorai, T., & Walther, A. (2022). Predictably unequal? The effects of machine learning on credit markets. *The Journal of Finance*, 77(1), 5–47. [https://onlinelibrary.wiley.com/doi/10.1111/jofi.13090](https://onlinelibrary.wiley.com/doi/10.1111/jofi.13090)
+
+3. Almgren, R., & Chriss, N. (2001). Optimal execution of portfolio transactions. *Journal of Risk*, 3(2), 5–39. [https://www.risk.net/journal-of-risk/1510987/optimal-execution-portfolio-transactions](https://www.risk.net/journal-of-risk/1510987/optimal-execution-portfolio-transactions)
+
+4. Cartea, Á., Jaimungal, S., & Penalva, J. (2015). *Algorithmic and High-Frequency Trading*. Cambridge University Press.
+
+5. Financial Stability Board. (2017). *Artificial Intelligence and Machine Learning in Financial Services*. FSB. [https://www.fsb.org/2017/11/artificial-intelligence-and-machine-learning-in-financial-service/](https://www.fsb.org/2017/11/artificial-intelligence-and-machine-learning-in-financial-service/)
+
+6. Financial Action Task Force. (2021). *Opportunities and Challenges of New Technologies for AML/CFT*. FATF. [https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Opportunities-challenges-new-technologies-for-aml-cft.html](https://www.fatf-gafi.org/en/publications/Fatfrecommendations/Opportunities-challenges-new-technologies-for-aml-cft.html)
